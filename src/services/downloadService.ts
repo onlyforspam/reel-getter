@@ -10,6 +10,7 @@ export interface DownloadResult {
   downloadUrl?: string;
   filename?: string;
   error?: string;
+  previewUrl?: string; // Added previewUrl property
 }
 
 export const downloadInstagramReel = async (url: string): Promise<DownloadResult> => {
@@ -28,13 +29,15 @@ export const downloadInstagramReel = async (url: string): Promise<DownloadResult
         }
 
         // In a real app, this would call a server-side API to process the Instagram URL
-        // For demo purposes, we'll simulate a successful response
+        // For demo purposes, we'll simulate a successful response with a sample video
         
-        // Note: In a real implementation, this would be a blob URL pointing to the actual video content
-        // For this demo, we're just providing a placeholder message
+        // Sample video URL for preview and download (using a royalty-free sample)
+        const videoUrl = 'https://assets.mixkit.co/videos/preview/mixkit-woman-dancing-in-a-lake-10483-large.mp4';
+        
         resolve({
           success: true,
-          downloadUrl: 'https://example.com/mocked-video-url.mp4',
+          downloadUrl: videoUrl,
+          previewUrl: videoUrl, // Added preview URL
           filename: 'instagram-reel-' + Date.now() + '.mp4'
         });
       } catch (error) {
@@ -47,17 +50,22 @@ export const downloadInstagramReel = async (url: string): Promise<DownloadResult
   });
 };
 
-// This function would typically trigger the browser's download mechanism
+// This function triggers the browser's download mechanism
 export const triggerDownload = (url: string, filename: string): void => {
-  // In a real app with a backend, this would work with actual file data
-  // For this demo, we'll just show a message about what would happen
-  console.log(`Downloading ${filename} from ${url}`);
+  // Create an invisible anchor element to trigger download
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.style.display = 'none';
   
-  // In a real implementation:
-  // const link = document.createElement('a');
-  // link.href = url;
-  // link.download = filename;
-  // document.body.appendChild(link);
-  // link.click();
-  // document.body.removeChild(link);
+  // Append to body, click, and remove
+  document.body.appendChild(link);
+  link.click();
+  
+  // Clean up
+  setTimeout(() => {
+    document.body.removeChild(link);
+  }, 100);
+  
+  console.log(`Downloading ${filename} from ${url}`);
 };

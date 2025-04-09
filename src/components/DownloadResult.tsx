@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download, RefreshCw } from 'lucide-react';
@@ -16,6 +16,15 @@ const DownloadResultComponent: React.FC<DownloadResultProps> = ({
   onReset,
   onDownload
 }) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  
+  useEffect(() => {
+    // Reset video when result changes
+    if (videoRef.current) {
+      videoRef.current.load();
+    }
+  }, [result]);
+
   if (!result.success) {
     return (
       <Card className="w-full max-w-md mx-auto border-2 border-destructive">
@@ -44,11 +53,25 @@ const DownloadResultComponent: React.FC<DownloadResultProps> = ({
           Your Instagram Reel is ready to download!
         </p>
         <div className="flex justify-center">
-          <div className="bg-muted rounded-md p-4 w-full max-w-xs aspect-[9/16] flex items-center justify-center">
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground mb-2">Video Preview</p>
-              <p className="text-xs text-muted-foreground">[Preview not available in demo]</p>
-            </div>
+          <div className="rounded-md w-full max-w-xs aspect-[9/16] overflow-hidden bg-muted">
+            {result.previewUrl ? (
+              <video 
+                ref={videoRef}
+                className="w-full h-full object-cover"
+                controls
+                autoPlay
+                muted
+                loop
+                playsInline
+              >
+                <source src={result.previewUrl} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                <p className="text-sm text-muted-foreground">Preview not available</p>
+              </div>
+            )}
           </div>
         </div>
       </CardContent>
