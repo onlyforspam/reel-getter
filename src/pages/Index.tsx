@@ -52,6 +52,7 @@ const Index = () => {
   };
 
   const handleDownload = (url: string, filename: string) => {
+    // Only show toast when download button is clicked
     triggerDownload(url, filename);
     toast({
       title: "Download Started",

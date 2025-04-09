@@ -31,8 +31,8 @@ export const downloadInstagramReel = async (url: string): Promise<DownloadResult
         // In a real app, this would call a server-side API to process the Instagram URL
         // For demo purposes, we'll simulate a successful response with a sample video
         
-        // Sample video URL for preview and download (using a royalty-free sample)
-        const videoUrl = 'https://assets.mixkit.co/videos/preview/mixkit-woman-dancing-in-a-lake-10483-large.mp4';
+        // Using a more reliable sample video URL (public domain)
+        const videoUrl = 'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
         
         resolve({
           success: true,
@@ -52,20 +52,37 @@ export const downloadInstagramReel = async (url: string): Promise<DownloadResult
 
 // This function triggers the browser's download mechanism
 export const triggerDownload = (url: string, filename: string): void => {
-  // Create an invisible anchor element to trigger download
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  link.style.display = 'none';
-  
-  // Append to body, click, and remove
-  document.body.appendChild(link);
-  link.click();
-  
-  // Clean up
-  setTimeout(() => {
-    document.body.removeChild(link);
-  }, 100);
-  
-  console.log(`Downloading ${filename} from ${url}`);
+  try {
+    // Fetch the file first to avoid CORS issues
+    fetch(url)
+      .then(response => response.blob())
+      .then(blob => {
+        // Create a blob URL from the downloaded data
+        const blobUrl = window.URL.createObjectURL(blob);
+        
+        // Create an invisible anchor element to trigger download
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = filename;
+        link.style.display = 'none';
+        
+        // Append to body, click, and remove
+        document.body.appendChild(link);
+        link.click();
+        
+        // Clean up
+        setTimeout(() => {
+          document.body.removeChild(link);
+          // Release the blob URL
+          window.URL.revokeObjectURL(blobUrl);
+        }, 100);
+        
+        console.log(`Downloading ${filename} from ${url}`);
+      })
+      .catch(error => {
+        console.error('Download failed:', error);
+      });
+  } catch (error) {
+    console.error('Download error:', error);
+  }
 };
